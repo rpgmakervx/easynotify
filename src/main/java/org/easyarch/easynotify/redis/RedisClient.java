@@ -1,10 +1,7 @@
 package org.easyarch.easynotify.redis;
 
 import org.easyarch.easynotify.conf.PropertyKits;
-import redis.clients.jedis.Jedis;
-import redis.clients.jedis.JedisPool;
-import redis.clients.jedis.JedisPoolConfig;
-import redis.clients.jedis.SortingParams;
+import redis.clients.jedis.*;
 import redis.clients.util.SafeEncoder;
 
 import java.util.List;
@@ -97,6 +94,10 @@ class RedisClient {
     private final Hash hash = new Hash();
     private final SortSet sortset = new SortSet();
 
+    private final Publisher publisher = new Publisher();
+
+    private final Subscriber subscriber = new Subscriber();
+
     public Keys keys() {
         return keys;
     }
@@ -119,6 +120,14 @@ class RedisClient {
 
     public SortSet sortSet() {
         return sortset;
+    }
+
+    public Publisher publisher(){
+        return publisher;
+    }
+
+    public Subscriber subscriber(){
+        return subscriber;
     }
 
     public class Keys {
@@ -1015,6 +1024,7 @@ class RedisClient {
          * @return String 操作状态
          */
         public String setEx(String key, int seconds, String value) {
+            System.out.println("set expire:"+value+", time:"+seconds);
             Jedis jedis = getJedis();
             String str = jedis.setex(key, seconds, value);
             closeJedis(jedis);
@@ -1082,6 +1092,13 @@ class RedisClient {
         public String set(byte[] key, byte[] value) {
             Jedis jedis = getJedis();
             String status = jedis.set(key, value);
+            closeJedis(jedis);
+            return status;
+        }
+
+        public String configSet(String parameter,String value){
+            Jedis jedis = getJedis();
+            String status = jedis.configSet(parameter,value);
             closeJedis(jedis);
             return status;
         }
@@ -1470,6 +1487,41 @@ class RedisClient {
          */
         public String ltrim(String key, int start, int end) {
             return ltrim(SafeEncoder.encode(key), start, end);
+        }
+    }
+
+    //*******************************************Publisher*******************************************//
+
+    public class Publisher{
+        public long publish(String channel,String message){
+            Jedis jedis = getJedis();
+            long count = jedis.publish(channel,message);
+            closeJedis(jedis);
+            return count;
+        }
+
+        public long publish(byte[] channel,byte[] message){
+            Jedis jedis = getJedis();
+            long count = jedis.publish(channel,message);
+            closeJedis(jedis);
+            return count;
+        }
+
+    }
+
+    //*******************************************Subscriber*******************************************//
+
+    public class Subscriber{
+        public void subscribe(JedisPubSub jedisPubSub, String... channels){
+            Jedis jedis = getJedis();
+            jedis.subscribe(jedisPubSub,channels);
+            closeJedis(jedis);
+        }
+
+        public void pSubscribe(JedisPubSub jedisPubSub, String... patterns){
+            Jedis jedis = getJedis();
+            jedis.psubscribe(jedisPubSub,patterns);
+            closeJedis(jedis);
         }
     }
 

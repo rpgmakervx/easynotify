@@ -31,4 +31,12 @@ public class RedisKits {
     public static RedisClient.SortSet sortSet(){
         return RedisClient.getInstance().sortSet();
     }
+
+    public static RedisClient.Publisher publisher(){
+        return RedisClient.getInstance().publisher();
+    }
+
+    public static RedisClient.Subscriber subscriber(){
+        return RedisClient.getInstance().subscriber();
+    }
 }

@@ -11,7 +11,8 @@ import org.easyarch.easynotify.redis.RedisKits;
 public class TaskTest {
 
     public static void main(String[] args) {
-        RedisKits.strings().set("username","xingtianyu");
-        System.out.println(RedisKits.strings().get("username"));
+//        RedisKits.publisher().publish("chatroom.me","hi!");
+//        RedisKits.strings().set("code","200");
+        RedisKits.strings().setEx("notify",5,"ding ding!!");
     }
 }
